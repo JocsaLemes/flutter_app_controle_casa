@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_app_controle_casa/mqtt.dart';
 import 'package:flutter_app_controle_casa/widgets/cabecalho.dart';
 import 'package:flutter_app_controle_casa/widgets/configuracao.dart';
+import 'package:mqtt_client/mqtt_client.dart';
 import 'package:mqtt_client/mqtt_server_client.dart';
 
 class MyHomePage extends StatefulWidget {
@@ -23,15 +24,26 @@ class _MyHomePageState extends State<MyHomePage> {
   bool bttv = false;
   bool btsom = false;
   int counter = 0;
+  int cont = 0;
 
   late Broker broker; // Declare a variável broker
-  final client = MqttServerClient('mqtt.eclipseprojects.io', '');
+  final client = MqttServerClient('mqtt.eclipseprojects.io', 'Jota');
 
   @override
   void initState() {
     super.initState();
     broker = Broker(client); // Inicialize broker dentro do initState
-    broker.conectar(); // Chame o método conectar do Broker
+    broker.conectar().then((_){
+      broker.subscribe("luz", MqttQos.atLeastOnce, (String status){
+        setState(() {
+          if(status == "true"){
+            btlamp = true;
+          }else{
+            btlamp =  false;
+          }
+        });
+      });
+    }); // Chame o método conectar do Broker
     
   }
 
@@ -195,6 +207,15 @@ class _MyHomePageState extends State<MyHomePage> {
                                     btsom =  false;
                                     bttv =  false;
                                     btwifi = true;
+                                    
+                                    if(btwifi == true){                                      
+                                       cont++;
+                                    }if(cont == 2){
+                                      setState(() {
+                                      btwifi = false;
+                                      cont = 0;
+                                      });
+                                      }
                                   });
                                 },
                                 icon: Icon(
@@ -390,7 +411,8 @@ class _MyHomePageState extends State<MyHomePage> {
                         icone2: Icons.wifi_1_bar,
                         infor: 'Status',
                         infor2: "Sinal",
-                        topico: "wifi",
+                        topico: "cortina", //trocar cortina por wifi
+                        valor: false,
                       ),
                     if (btar)
                       Configuracao(
@@ -399,7 +421,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           icone2: Icons.mode_fan_off_outlined,
                           infor: "Status",
                           infor2: "Temperatura",
-                          topico: "ar",
+                          topico: "ar", valor: false,
                           ),
                     if (btlamp)
                       const Configuracao(
@@ -408,7 +430,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         icone2: Icons.light_mode_outlined,
                         infor: "Status",
                         infor2: "Brilho",
-                        topico: "luzes",
+                        topico: "luz", valor: false,
                       )
                   ],
                 ),

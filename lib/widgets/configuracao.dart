@@ -11,7 +11,8 @@ class Configuracao extends StatefulWidget {
       required this.icone2,
       required this.infor,
       required this.infor2,
-      required this.topico})
+      required this.topico, 
+      required this.valor})
       : super(key: key);
 
   final String titulo;
@@ -20,6 +21,7 @@ class Configuracao extends StatefulWidget {
   final IconData icone;
   final IconData icone2;
   final String topico;
+  final bool valor;
 
   
 
@@ -49,6 +51,7 @@ class _ConfiguracaoState extends State<Configuracao> {
     super.initState();
     broker = Broker(client); // Inicialize broker dentro do initState
     broker.conectar(); // Chame o método conectar do Broker
+    _valorSwitch = widget.valor;
     
   }
 
@@ -94,6 +97,7 @@ class _ConfiguracaoState extends State<Configuracao> {
                         size: 30,
                       ),
                       Switch(
+                        
                         activeColor: const Color.fromARGB(255, 56, 210, 252),
                         value: _valorSwitch,
                         onChanged: (bool newValue) {
