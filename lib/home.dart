@@ -1,4 +1,6 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:flutter_app_controle_casa/mqtt.dart';
 import 'package:flutter_app_controle_casa/widgets/cabecalho.dart';
 import 'package:flutter_app_controle_casa/widgets/configuracao.dart';
@@ -18,12 +20,15 @@ class _MyHomePageState extends State<MyHomePage> {
   bool valor = false;
   String valorR = "";
   double valorSlider = 0;
-  bool btlamp = false;
-  bool btar = false;
-  bool btwifi = false;
+  bool btLampClosed = false;
+  bool btLampQuarto = false;
+  bool btJanela = false;
   bool bttv = false;
   bool btsom = false;
   int counter = 0;
+
+  bool quarto = false;
+  bool sala = false;
   int cont = 0;
 
   late Broker broker; // Declare a variável broker
@@ -33,18 +38,17 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     broker = Broker(client); // Inicialize broker dentro do initState
-    broker.conectar().then((_){
-      broker.subscribe("luz", MqttQos.atLeastOnce, (String status){
+    broker.conectar().then((_) {
+      broker.subscribe("luz", MqttQos.atLeastOnce, (String status) {
         setState(() {
-          if(status == "true"){
-            btlamp = true;
-          }else{
-            btlamp =  false;
+          if (status == "true") {
+            btLampClosed = true;
+          } else {
+            btLampClosed = false;
           }
         });
       });
     }); // Chame o método conectar do Broker
-    
   }
 
   Cabecalho cabecalho =
@@ -71,6 +75,7 @@ class _MyHomePageState extends State<MyHomePage> {
                       scrollDirection: Axis.horizontal,
                       child: Row(
                         children: [
+                          //Quarto
                           Container(
                             width: 90,
                             height: 90,
@@ -92,7 +97,22 @@ class _MyHomePageState extends State<MyHomePage> {
                                   style: TextStyle(fontSize: 13),
                                 ),
                                 IconButton(
-                                  onPressed: () {},
+                                  onPressed: () {
+                                    setState(() {
+                                      cont++;
+                                      quarto = true;
+                                      print("cont antes do if $cont");
+                                      if (cont == 2) {
+                                        quarto = false;
+                                        cont = 0;
+                                        btJanela = false;
+                                        btLampQuarto = false;
+                                        btLampClosed = false;
+
+                                        print("cont no if $cont");
+                                      }
+                                    });
+                                  },
                                   icon:
                                       const Icon(Icons.bed_outlined, size: 40),
                                 ),
@@ -103,6 +123,7 @@ class _MyHomePageState extends State<MyHomePage> {
                               ],
                             ),
                           ),
+                          //Sala
                           Padding(
                             padding: const EdgeInsets.symmetric(
                                 horizontal: 15, vertical: 15),
@@ -128,18 +149,34 @@ class _MyHomePageState extends State<MyHomePage> {
                                     style: TextStyle(fontSize: 13),
                                   ),
                                   IconButton(
-                                    onPressed: () {},
+                                    onPressed: () {
+                                      setState(() {
+                                        cont++;
+                                        sala = true;
+                                        print("cont antes do if $cont");
+                                        if (cont == 2) {
+                                          sala = false;
+                                          cont = 0;
+                                          btJanela = false;
+                                          btLampQuarto = false;
+                                          btLampClosed = false;
+
+                                          print("cont no if $cont");
+                                        }
+                                      });
+                                    },
                                     icon: const Icon(Icons.living_outlined,
                                         size: 40),
                                   ),
                                   const Text(
-                                    "4 dispositivos",
+                                    "5 dispositivos",
                                     style: TextStyle(fontSize: 8),
                                   )
                                 ],
                               ),
                             ),
                           ),
+                          //Banheiro
                           Container(
                             width: 90,
                             height: 90,
@@ -166,26 +203,19 @@ class _MyHomePageState extends State<MyHomePage> {
                                       size: 40),
                                 ),
                                 const Text(
-                                  "2 dispositivos",
+                                  "1 dispositivos",
                                   style: TextStyle(fontSize: 8),
                                 )
                               ],
                             ),
                           ),
-                        ],
-                      ),
-                    ),
-                    const Text("Dispositivos",
-                        style: TextStyle(
-                          fontSize: 20,
-                        )),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Row(
-                        children: [
-                          Container(
-                              width: 60,
-                              height: 60,
+                          //Cozinha
+                          Padding(
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 15, vertical: 15),
+                            child: Container(
+                              width: 90,
+                              height: 90,
                               decoration: BoxDecoration(
                                   boxShadow: [
                                     BoxShadow(
@@ -197,241 +227,382 @@ class _MyHomePageState extends State<MyHomePage> {
                                         offset: Offset(0, 5)),
                                   ],
                                   color: Colors.white,
-                                  borderRadius: BorderRadius.circular(51)),
-                              child: IconButton(
-                                onPressed: () {
-                                  
-                                  setState(() {
-                                    btar = false;
-                                    btlamp = false;
-                                    btsom =  false;
-                                    bttv =  false;
-                                    btwifi = true;
-                                    
-                                    if(btwifi == true){                                      
-                                       cont++;
-                                    }if(cont == 2){
-                                      setState(() {
-                                      btwifi = false;
-                                      cont = 0;
-                                      });
-                                      }
-                                  });
-                                },
-                                icon: Icon(
-                                  Icons.wifi_rounded,
-                                  size: 30,
+                                  borderRadius: BorderRadius.circular(11)),
+                              child: Column(
+                                children: [
+                                  const Text(
+                                    "Cozinha",
+                                    style: TextStyle(fontSize: 13),
+                                  ),
+                                  IconButton(
+                                    onPressed: () {},
+                                    icon: const Icon(Icons.blender, size: 40),
+                                  ),
+                                  const Text(
+                                    "6 dispositivos",
+                                    style: TextStyle(fontSize: 8),
+                                  )
+                                ],
+                              ),
+                            ),
+                          ),
+                          //Garagem
+                          Container(
+                            width: 90,
+                            height: 90,
+                            decoration: BoxDecoration(
+                                boxShadow: [
+                                  BoxShadow(
+                                      color: const Color.fromARGB(255, 0, 0, 0)
+                                          .withOpacity(0.2),
+                                      spreadRadius: 2,
+                                      blurRadius: 5,
+                                      offset: Offset(0, 5)),
+                                ],
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(11)),
+                            child: Column(
+                              children: [
+                                const Text(
+                                  "Banheiro",
+                                  style: TextStyle(fontSize: 13),
                                 ),
-                              )),
-                          Padding(
-                            padding: const EdgeInsets.symmetric(
-                                horizontal: 15, vertical: 15),
-                            child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color:
-                                              const Color.fromARGB(255, 0, 0, 0)
-                                                  .withOpacity(0.2),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 5)),
-                                    ],
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(51)),
-                                child: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      btar = true;
-                                    btlamp = false;
-                                    btsom =  false;
-                                    bttv =  false;
-                                    btwifi = false;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.air_outlined,
-                                    size: 30,
-                                  ),
-                                )),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-                            child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color:
-                                              const Color.fromARGB(255, 0, 0, 0)
-                                                  .withOpacity(0.2),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 5)),
-                                    ],
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(51)),
-                                child: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      btlamp = true;
-                                      btar = false;
-                                    
-                                    btsom =  false;
-                                    bttv =  false;
-                                    btwifi = false;
-                                    });
-                                  },
-                                  icon: Icon(
-                                    Icons.light_outlined,
-                                    size: 32,
-                                  ),
-                                )),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-                            child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color:
-                                              const Color.fromARGB(255, 0, 0, 0)
-                                                  .withOpacity(0.2),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 5)),
-                                    ],
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(51)),
-                                child: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      bttv = true;
-                                      btar = false;
-                                    btlamp = false;
-                                    btsom =  false;
-                                    
-                                    btwifi = false;
-                                    });
-                                  },
-                                  icon: Icon(Icons.tv_rounded, size: 30),
-                                )),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-                            child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color:
-                                              const Color.fromARGB(255, 0, 0, 0)
-                                                  .withOpacity(0.2),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 5)),
-                                    ],
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(51)),
-                                child: IconButton(
-                                  onPressed: () {
-                                    setState(() {
-                                      btsom = true;
-                                      btar = false;
-                                    btlamp = false;
-                                    
-                                    bttv =  false;
-                                    btwifi = false;
-                                    });
-                                  },
-                                  icon: Icon(Icons.volume_up, size: 30),
-                                )),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-                            child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color:
-                                              const Color.fromARGB(255, 0, 0, 0)
-                                                  .withOpacity(0.2),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 5)),
-                                    ],
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(51)),
-                                child: IconButton(
+                                IconButton(
                                   onPressed: () {},
-                                  icon: Icon(Icons.abc),
-                                )),
-                          ),
-                          Padding(
-                            padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
-                            child: Container(
-                                width: 60,
-                                height: 60,
-                                decoration: BoxDecoration(
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color:
-                                              const Color.fromARGB(255, 0, 0, 0)
-                                                  .withOpacity(0.2),
-                                          spreadRadius: 2,
-                                          blurRadius: 5,
-                                          offset: Offset(0, 5)),
-                                    ],
-                                    color: Colors.white,
-                                    borderRadius: BorderRadius.circular(51)),
-                                child: IconButton(
-                                  onPressed: () {},
-                                  icon: Icon(Icons.abc),
-                                )),
+                                  icon: const Icon(Icons.garage, size: 40),
+                                ),
+                                const Text(
+                                  "2 dispositivos",
+                                  style: TextStyle(fontSize: 8),
+                                )
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
-                    const Text("Configurações",
-                        style: TextStyle(
-                          fontSize: 20,
-                        )),
-                    if (btwifi)
-                      Configuracao(
-                        titulo: "Wiriless",
-                        icone: Icons.wifi,
-                        icone2: Icons.wifi_1_bar,
-                        infor: 'Status',
-                        infor2: "Sinal",
-                        topico: "cortina", //trocar cortina por wifi
-                        valor: false,
+
+                    //Dispositivos do quarto
+                    //Texto dispositivos do quarto
+                    Visibility(
+                      visible: quarto,
+                      child: const Text("Dispositivos do quarto",
+                          style: TextStyle(
+                            fontSize: 20,
+                          )),
+                    ),
+                    //Itens presentes no quarto
+                    Visibility(
+                      visible: quarto,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color:
+                                              const Color.fromARGB(255, 0, 0, 0)
+                                                  .withOpacity(0.2),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: Offset(0, 5)),
+                                    ],
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(51)),
+                                child: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      btLampQuarto = false;
+                                      btLampClosed = false;
+                                      btJanela = true;
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.window_outlined,
+                                    size: 30,
+                                  ),
+                                )),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 15),
+                              child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: const Color.fromARGB(
+                                                    255, 0, 0, 0)
+                                                .withOpacity(0.2),
+                                            spreadRadius: 2,
+                                            blurRadius: 5,
+                                            offset: Offset(0, 5)),
+                                      ],
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(51)),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        btLampQuarto = true;
+                                        btLampClosed = false;
+                                        btJanela = false;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.lightbulb_circle,
+                                      size: 30,
+                                    ),
+                                  )),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                              child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: const Color.fromARGB(
+                                                    255, 0, 0, 0)
+                                                .withOpacity(0.2),
+                                            spreadRadius: 2,
+                                            blurRadius: 5,
+                                            offset: Offset(0, 5)),
+                                      ],
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(51)),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        btLampClosed = true;
+                                        btLampQuarto = false;
+                                        btJanela = false;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.light_outlined,
+                                      size: 32,
+                                    ),
+                                  )),
+                            ),
+                          ],
+                        ),
                       ),
-                    if (btar)
+                    ),
+                    //Texto configurações do quarto
+                    Visibility(
+                      visible: quarto,
+                      child: const Text("Configurações do quarto",
+                          style: TextStyle(
+                            fontSize: 20,
+                          )),
+                    ),
+                    //Itens das configurações de cada dispositivo
+                    if (btJanela)
                       Configuracao(
-                          titulo: "Ar",
-                          icone: Icons.air,
-                          icone2: Icons.mode_fan_off_outlined,
-                          infor: "Status",
-                          infor2: "Temperatura",
-                          topico: "ar", valor: false,
-                          ),
-                    if (btlamp)
+                        titulo: "Janela",
+                        icone: Icons.window,
+                        icone2: Icons.width_normal_rounded,
+                        infor: 'Tranca',
+                        infor2: "Sinal",
+                        topico: "cortina", //trocar cortina para o topico novo
+                        valor: false,
+                        //status: "",
+                      ),
+                    if (btLampQuarto)
+                      Configuracao(
+                        titulo: "Luz quarto",
+                        icone: Icons.light,
+                        icone2: Icons.light_mode_rounded,
+                        infor: "Status",
+                        infor2: "Brilho",
+                        topico: "ar", //trocar topico para o novo
+                        valor: true,
+                        //status: '${btLampQuarto ? "trancado":"destrancado"}',
+                      ),
+                    if (btLampClosed)
                       const Configuracao(
-                        titulo: "Lâmpada de filamento",
+                        titulo: "Luz closed",
                         icone: Icons.light,
                         icone2: Icons.light_mode_outlined,
                         infor: "Status",
                         infor2: "Brilho",
-                        topico: "luz", valor: false,
-                      )
+                        topico: "luz", //trocar topico para o novo
+                        valor: true,
+                        //status: "trancado",
+                      ),
+
+
+                      //Itens presentes na sala
+                    Visibility(
+                      visible: sala,
+                      child: SingleChildScrollView(
+                        scrollDirection: Axis.horizontal,
+                        child: Row(
+                          children: [
+                            Container(
+                                width: 60,
+                                height: 60,
+                                decoration: BoxDecoration(
+                                    boxShadow: [
+                                      BoxShadow(
+                                          color:
+                                              const Color.fromARGB(255, 0, 0, 0)
+                                                  .withOpacity(0.2),
+                                          spreadRadius: 2,
+                                          blurRadius: 5,
+                                          offset: Offset(0, 5)),
+                                    ],
+                                    color: Colors.white,
+                                    borderRadius: BorderRadius.circular(51)),
+                                child: IconButton(
+                                  onPressed: () {
+                                    setState(() {
+                                      //btLampQuarto = false;
+                                      //btLampClosed = false;
+                                      //btJanela = true;
+                                    });
+                                  },
+                                  icon: Icon(
+                                    Icons.window_outlined,
+                                    size: 30,
+                                  ),
+                                )),
+                            Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 15, vertical: 15),
+                              child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: const Color.fromARGB(
+                                                    255, 0, 0, 0)
+                                                .withOpacity(0.2),
+                                            spreadRadius: 2,
+                                            blurRadius: 5,
+                                            offset: Offset(0, 5)),
+                                      ],
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(51)),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        //btLampQuarto = true;
+                                        //btLampClosed = false;
+                                        //btJanela = false;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.lightbulb_circle,
+                                      size: 30,
+                                    ),
+                                  )),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                              child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: const Color.fromARGB(
+                                                    255, 0, 0, 0)
+                                                .withOpacity(0.2),
+                                            spreadRadius: 2,
+                                            blurRadius: 5,
+                                            offset: Offset(0, 5)),
+                                      ],
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(51)),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        //btLampClosed = true;
+                                        //btLampQuarto = false;
+                                        //btJanela = false;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.light_outlined,
+                                      size: 32,
+                                    ),
+                                  )),
+                            ),
+                            Padding(
+                             padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                              child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: const Color.fromARGB(
+                                                    255, 0, 0, 0)
+                                                .withOpacity(0.2),
+                                            spreadRadius: 2,
+                                            blurRadius: 5,
+                                            offset: Offset(0, 5)),
+                                      ],
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(51)),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        //btLampQuarto = true;
+                                        //btLampClosed = false;
+                                        //btJanela = false;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.lightbulb_circle,
+                                      size: 30,
+                                    ),
+                                  )),
+                            ),
+                            Padding(
+                              padding: const EdgeInsets.fromLTRB(0, 0, 15, 0),
+                              child: Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                      boxShadow: [
+                                        BoxShadow(
+                                            color: const Color.fromARGB(
+                                                    255, 0, 0, 0)
+                                                .withOpacity(0.2),
+                                            spreadRadius: 2,
+                                            blurRadius: 5,
+                                            offset: Offset(0, 5)),
+                                      ],
+                                      color: Colors.white,
+                                      borderRadius: BorderRadius.circular(51)),
+                                  child: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        //btLampClosed = true;
+                                        //btLampQuarto = false;
+                                        //btJanela = false;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      Icons.light_outlined,
+                                      size: 32,
+                                    ),
+                                  )),
+                            ),
+                          
+                          ],
+                        ),
+                      ),
+                    ),
+                    
                   ],
                 ),
               )
